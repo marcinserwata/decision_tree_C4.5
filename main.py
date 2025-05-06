@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import math
 
-# ---------------------------
-# Etap 1: Wczytywanie danych i podstawowe obliczenia
-# ---------------------------
+#region Wczytywanie danych i obliczenia
+
 def load_data(file_name):
     """
     Wczytuje dane z pliku tekstowego, zakładając, że wartości są oddzielone przecinkami.
@@ -15,7 +14,6 @@ def load_data(file_name):
         for line in f:
             line = line.strip()
             if line:  # pomijamy puste linie
-                # Rozdzielenie wartości – zakładamy przecinek jako separator
                 row_values = line.split(',')
                 new_row = []
                 for value in row_values:
@@ -115,9 +113,10 @@ def calculate_gain_ratio(data, attribute_index, decision_entropy):
         return 0
     return gain / split_info
 
-# ---------------------------
-# Etap 2: Rekurencyjna budowa drzewa decyzyjnego (rozwiązanie rozdziału 7)
-# ---------------------------
+#endregion
+
+#region Rekurencyjna budowa drzewa decyzyjnego i wyświetlanie go
+
 class TreeNode:
     def __init__(self, attribute=None, children=None, label=None):
         """
@@ -177,43 +176,37 @@ def build_tree(data):
 
 def print_tree(node, indent_level=0, value_prefix=""):
     """
-    Rekurencyjnie wypisuje strukturę drzewa decyzyjnego w formacie zgodnym z wizualizacja.txt.
+    Rekurencyjnie wypisuje strukturę drzewa decyzyjnego
     """
-    indent = "          " * indent_level # 10 spacji na poziom
+    indent = "          " * indent_level # 10 spacji na poziom dla czytelności
 
     if node is None:
         print(indent + value_prefix + "Brak drzewa")
         return
 
     if node.label is not None:
-        # Format liścia: <wcięcie><prefix_wartości> -> D: <etykieta>
         print(indent + value_prefix + " -> D: " + str(node.label))
     else:
-        # Format węzła wewnętrznego
-        attribute_display_index = node.attribute + 1 # Dostosuj indeks do wyświetlania (od 1)
+        attribute_display_index = node.attribute + 1
         if indent_level == 0:
-            # Format korzenia: Atrybut: <indeks>
             print("Atrybut: " + str(attribute_display_index))
         else:
-            # Format węzła wewnętrznego: <wcięcie><prefix_wartości>->Atrybut: <indeks>
             print(indent + value_prefix + "->Atrybut: " + str(attribute_display_index))
 
-        # Sortuj dzieci według wartości dla spójnego wyniku
-        # Konwertuj klucze na stringi do sortowania, aby obsłużyć potencjalne mieszane typy (int/str)
         sorted_children = sorted(node.children.items(), key=lambda item: str(item[0]))
 
         for value, child in sorted_children:
-            # Rekurencyjne wywołanie dla dzieci
-            # prefix_wartości dla następnego poziomu to wartość bieżącej gałęzi
             print_tree(child, indent_level + 1, value_prefix=str(value))
+
+#endregion
+
+#region Metoda main
 
 def main():    
     file_name = "Dane testowe/gielda.txt"
-
-    print(f"Wczytywanie danych z pliku: {file_name}")
     data = load_data(file_name)
     
-    print("Wczytane dane:")
+    print(f"Wczytane dane z pliku: {file_name}")
     for row in data:
         print(row)
 
@@ -233,7 +226,7 @@ def main():
     # Obliczenie entropii zbioru (na podstawie atrybutu decyzyjnego)
     decision_attribute_stats = stats[num_attributes - 1]
     decision_entropy = calculate_entropy(decision_attribute_stats)
-    print("\nEntropia zbioru (atrybut decyzyjny): {:.4f}".format(decision_entropy))
+    print(f"\nEntropia zbioru (atrybut decyzyjny): {decision_entropy}")
 
     # Obliczenia Info, Gain, SplitInfo, Gain Ratio dla atrybutów warunkowych
     print("\nObliczenia dla atrybutów warunkowych:")
@@ -256,3 +249,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#endregion
